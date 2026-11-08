@@ -10,6 +10,7 @@ import {
   StyleSheet,
   StatusBar,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 
 // Create shared event context
@@ -46,39 +47,127 @@ const campusEvents = [
 function EventProvider({ children }) {
   const [savedEvents, setSavedEvents] = useState([]);
 
+  const addEvent = (event) => {
+    if (!savedEvents.some((item) => item.id === event.id)) {
+      setSavedEvents((previous) => [...previous, event]);
+    }
+  };
+
+  const removeEvent = (id) => {
+    setSavedEvents((previous) =>
+      previous.filter((event) => event.id !== id)
+    );
+  };
+
   return (
     <EventContext.Provider
-      value={{ savedEvents, setSavedEvents }}
+      value={{ savedEvents, addEvent, removeEvent }}
     >
       {children}
     </EventContext.Provider>
   );
 }
 
-function HomeScreen() {
-  const { savedEvents } = useContext(EventContext);
+function DiscoverScreen() {
+  const { savedEvents, addEvent } = useContext(EventContext);
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Campus Event Planner</Text>
+      <Text style={styles.title}>Discover Events</Text>
       <Text style={styles.subtitle}>
-        Discover upcoming campus events.
+        Find activities happening around campus.
       </Text>
 
-      <Text style={styles.sectionTitle}>Upcoming Events</Text>
+      {campusEvents.map((event) => {
+        const isSaved = savedEvents.some(
+          (item) => item.id === event.id
+        );
 
-      {campusEvents.map((event) => (
-        <View style={styles.card} key={event.id}>
-          <Text style={styles.cardTitle}>{event.title}</Text>
-          <Text style={styles.description}>{event.date}</Text>
-          <Text style={styles.description}>{event.location}</Text>
-        </View>
-      ))}
+        return (
+          <View style={styles.card} key={event.id}>
+            <Text style={styles.cardTitle}>{event.title}</Text>
+            <Text style={styles.description}>{event.date}</Text>
+            <Text style={styles.description}>{event.location}</Text>
 
-      <Text style={styles.savedText}>
-        Saved Events: {savedEvents.length}
-      </Text>
+            <TouchableOpacity
+              style={[styles.button, isSaved && styles.savedButton]}
+              onPress={() => addEvent(event)}
+              disabled={isSaved}
+            >
+              <Text style={styles.buttonText}>
+                {isSaved ? 'Added to Schedule' : 'Add to Schedule'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        );
+      })}
     </ScrollView>
+  );
+}
+
+function ScheduleScreen() {
+  const { savedEvents, removeEvent } = useContext(EventContext);
+
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>My Schedule</Text>
+      <Text style={styles.subtitle}>
+        Manage your saved campus events.
+      </Text>
+
+      {savedEvents.length === 0 ? (
+        <View style={styles.card}>
+          <Text style={styles.description}>
+            No events saved yet. Visit Discover Events to add one.
+          </Text>
+        </View>
+      ) : (
+        savedEvents.map((event) => (
+          <View style={styles.card} key={event.id}>
+            <Text style={styles.cardTitle}>{event.title}</Text>
+            <Text style={styles.description}>{event.date}</Text>
+            <Text style={styles.description}>{event.location}</Text>
+
+            <TouchableOpacity
+              style={styles.removeButton}
+              onPress={() => removeEvent(event.id)}
+            >
+              <Text style={styles.buttonText}>Remove Event</Text>
+            </TouchableOpacity>
+          </View>
+        ))
+      )}
+    </ScrollView>
+  );
+}
+
+function AppContent() {
+  const [activeScreen, setActiveScreen] = useState('discover');
+
+  return (
+    <View style={styles.appContainer}>
+      <View style={styles.tabButtons}>
+        <TouchableOpacity
+          style={styles.tabButton}
+          onPress={() => setActiveScreen('discover')}
+        >
+          <Text style={styles.tabText}>Discover</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.tabButton}
+          onPress={() => setActiveScreen('schedule')}
+        >
+          <Text style={styles.tabText}>My Schedule</Text>
+        </TouchableOpacity>
+      </View>
+
+      {activeScreen === 'discover' ? (
+        <DiscoverScreen />
+      ) : (
+        <ScheduleScreen />
+      )}
+    </View>
   );
 }
 
@@ -86,17 +175,37 @@ export default function App() {
   return (
     <EventProvider>
       <StatusBar barStyle="dark-content" backgroundColor="#F5F0FF" />
-      <HomeScreen />
+      <AppContent />
     </EventProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  appContainer: {
     flex: 1,
     backgroundColor: '#F5F0FF',
+  },
+  container: {
+    flex: 1,
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 25,
+  },
+  tabButtons: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    marginTop: 45,
+    marginHorizontal: 15,
+    borderRadius: 12,
+  },
+  tabButton: {
+    flex: 1,
+    padding: 12,
+    alignItems: 'center',
+  },
+  tabText: {
+    color: '#6C3FC5',
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 26,
@@ -107,19 +216,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#777',
     marginTop: 8,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#493080',
-    marginTop: 28,
-    marginBottom: 12,
+    marginBottom: 20,
   },
   card: {
     backgroundColor: '#FFFFFF',
     padding: 18,
     borderRadius: 16,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   cardTitle: {
     fontSize: 17,
@@ -130,11 +233,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 7,
+    lineHeight: 21,
   },
-  savedText: {
-    color: '#6C3FC5',
-    fontSize: 16,
+  button: {
+    backgroundColor: '#7B4BD4',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  savedButton: {
+    backgroundColor: '#9B8BB8',
+  },
+  removeButton: {
+    backgroundColor: '#E05B75',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  buttonText: {
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    marginVertical: 20,
   },
 });
