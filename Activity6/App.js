@@ -9,10 +9,39 @@ import {
   Text,
   StyleSheet,
   StatusBar,
+  ScrollView,
 } from 'react-native';
 
 // Create shared event context
 const EventContext = createContext();
+
+// Sample campus events
+const campusEvents = [
+  {
+    id: '1',
+    title: 'IT Tech Conference',
+    date: 'December 5, 2026',
+    location: 'University Auditorium',
+  },
+  {
+    id: '2',
+    title: 'Creative Design Workshop',
+    date: 'December 8, 2026',
+    location: 'Computer Laboratory',
+  },
+  {
+    id: '3',
+    title: 'Campus Sports Festival',
+    date: 'December 12, 2026',
+    location: 'University Gym',
+  },
+  {
+    id: '4',
+    title: 'Student Music Night',
+    date: 'December 15, 2026',
+    location: 'Open Grounds',
+  },
+];
 
 function EventProvider({ children }) {
   const [savedEvents, setSavedEvents] = useState([]);
@@ -30,19 +59,26 @@ function HomeScreen() {
   const { savedEvents } = useContext(EventContext);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Campus Event Planner</Text>
       <Text style={styles.subtitle}>
-        Organize your campus activities.
+        Discover upcoming campus events.
       </Text>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>My Events</Text>
-        <Text style={styles.description}>
-          Saved Events: {savedEvents.length}
-        </Text>
-      </View>
-    </View>
+      <Text style={styles.sectionTitle}>Upcoming Events</Text>
+
+      {campusEvents.map((event) => (
+        <View style={styles.card} key={event.id}>
+          <Text style={styles.cardTitle}>{event.title}</Text>
+          <Text style={styles.description}>{event.date}</Text>
+          <Text style={styles.description}>{event.location}</Text>
+        </View>
+      ))}
+
+      <Text style={styles.savedText}>
+        Saved Events: {savedEvents.length}
+      </Text>
+    </ScrollView>
   );
 }
 
@@ -59,7 +95,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F0FF',
-    padding: 24,
+    padding: 20,
     paddingTop: 60,
   },
   title: {
@@ -72,20 +108,33 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 8,
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#493080',
+    marginTop: 28,
+    marginBottom: 12,
+  },
   card: {
     backgroundColor: '#FFFFFF',
-    padding: 20,
+    padding: 18,
     borderRadius: 16,
-    marginTop: 30,
+    marginBottom: 12,
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#6C3FC5',
   },
   description: {
     fontSize: 14,
     color: '#666',
-    marginTop: 10,
+    marginTop: 7,
+  },
+  savedText: {
+    color: '#6C3FC5',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginVertical: 20,
   },
 });
