@@ -1,11 +1,27 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  StatusBar,
+} from 'react-native';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <StatusBar barStyle="dark-content" backgroundColor="#F5F0FF" />
+
+      <Text style={styles.title}>Campus Event Planner</Text>
+      <Text style={styles.subtitle}>
+        Discover events happening on campus!
+      </Text>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Welcome!</Text>
+        <Text style={styles.description}>
+          Keep track of campus activities and organize your schedule.
+        </Text>
+      </View>
     </View>
   );
 }
@@ -13,8 +29,35 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#F5F0FF',
+    padding: 24,
+    paddingTop: 60,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#6C3FC5',
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#777',
+    marginTop: 8,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 16,
+    marginTop: 30,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#6C3FC5',
+  },
+  description: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 10,
+    lineHeight: 22,
   },
 });
