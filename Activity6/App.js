@@ -1,4 +1,9 @@
-import React from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+} from 'react';
+
 import {
   View,
   Text,
@@ -6,23 +11,47 @@ import {
   StatusBar,
 } from 'react-native';
 
-export default function App() {
+// Create shared event context
+const EventContext = createContext();
+
+function EventProvider({ children }) {
+  const [savedEvents, setSavedEvents] = useState([]);
+
+  return (
+    <EventContext.Provider
+      value={{ savedEvents, setSavedEvents }}
+    >
+      {children}
+    </EventContext.Provider>
+  );
+}
+
+function HomeScreen() {
+  const { savedEvents } = useContext(EventContext);
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F5F0FF" />
-
       <Text style={styles.title}>Campus Event Planner</Text>
       <Text style={styles.subtitle}>
-        Discover events happening on campus!
+        Organize your campus activities.
       </Text>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Welcome!</Text>
+        <Text style={styles.cardTitle}>My Events</Text>
         <Text style={styles.description}>
-          Keep track of campus activities and organize your schedule.
+          Saved Events: {savedEvents.length}
         </Text>
       </View>
     </View>
+  );
+}
+
+export default function App() {
+  return (
+    <EventProvider>
+      <StatusBar barStyle="dark-content" backgroundColor="#F5F0FF" />
+      <HomeScreen />
+    </EventProvider>
   );
 }
 
@@ -58,6 +87,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 10,
-    lineHeight: 22,
   },
 });
